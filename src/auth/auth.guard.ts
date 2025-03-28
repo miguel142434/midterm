@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository  } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Dictator } from 'src/dictators/entities/dictator.entity';
 
