@@ -17,31 +17,31 @@ export class DictatorsController {
     return this.dictatorsService.create(createDictatorDto);
   }
 
-  @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
+  //@UseGuards(AuthGuard('jwt'), AutenticadorGuard)
   @Get()
   findAll() {
     return this.dictatorsService.findAll();
   }
 
-  @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
+  //@UseGuards(AuthGuard('jwt'), AutenticadorGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.dictatorsService.findOne(id);
   }
 
-  @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
+  // @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
   @Get(':dictatorId/contestants')
   async getContestantsByDictator(@Param('dictatorId') dictatorId: string): Promise<Contestant[]> {
     return this.dictatorsService.findContestantsByDictator(dictatorId);
   } 
 
-  @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
+  // @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDictatorDto: UpdateDictatorDto) {
     return this.dictatorsService.update(id, updateDictatorDto);
   }
 
-  @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
+  // @UseGuards(AuthGuard('jwt'), AutenticadorGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.dictatorsService.remove(id);
