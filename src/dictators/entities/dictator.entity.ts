@@ -41,13 +41,13 @@ export class Dictator {
     transactionsAsSeller: Transaction[];
 
     @Column('varchar', {
-        nullable: false,
+        nullable: true,
         unique: true,
     })
     email: string;
 
     @Column('varchar', {
-        nullable: false,
+        nullable: true,
     })
     password: string;
 
