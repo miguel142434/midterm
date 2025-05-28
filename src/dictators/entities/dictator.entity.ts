@@ -31,7 +31,7 @@ export class Dictator {
     })
     loyalty_to_carolina: number;
 
-    @OneToMany(() => Contestant, (contestant) => contestant.origin)
+    @OneToMany(() => Contestant, (contestant) => contestant.dictator)
     contestants: Contestant[];
 
     @OneToMany(() => Transaction, (transaction) => transaction.buyer_id)
