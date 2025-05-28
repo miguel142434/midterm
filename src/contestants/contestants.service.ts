@@ -16,7 +16,7 @@ export class ContestantsService {
   ) {}
 
   async create(createContestantDto: CreateContestantDto): Promise<Contestant> {
-    const { dictatorId, ...rest } = createContestantDto;
+    const { dictatorId, created_at, ...rest } = createContestantDto;
 
     const dictator = await this.dictatorRepository.findOne({
       where: { id: dictatorId },
@@ -29,6 +29,7 @@ export class ContestantsService {
     const contestant = this.contestantRepository.create({
       ...rest,
       dictator,
+      created_at: created_at ? new Date(created_at) : new Date(),
     });
 
     return this.contestantRepository.save(contestant);
@@ -36,7 +37,7 @@ export class ContestantsService {
 
   async findAll(): Promise<Contestant[]> {
     return this.contestantRepository.find({
-      relations: ['dictator'], // para incluir info del dictador
+      relations: ['dictator'],
       order: {
         created_at: 'DESC',
       },
@@ -59,7 +60,6 @@ export class ContestantsService {
   async update(id: string, updateContestantDto: Partial<CreateContestantDto>): Promise<Contestant> {
     const contestant = await this.findOne(id);
 
-    // Si quieren cambiar de dictador
     if (updateContestantDto.dictatorId) {
       const newDictator = await this.dictatorRepository.findOne({
         where: { id: updateContestantDto.dictatorId },

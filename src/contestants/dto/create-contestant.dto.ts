@@ -1,7 +1,14 @@
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  IsDateString,
+} from 'class-validator';
 import { ContestantStatus } from '../entities/contestant.entity';
-
-import { IsUUID } from 'class-validator';
 
 export class CreateContestantDto {
   @IsString()
@@ -43,4 +50,8 @@ export class CreateContestantDto {
   @IsEnum(ContestantStatus)
   @IsOptional()
   status?: ContestantStatus;
+
+  @IsDateString()
+  @IsOptional()
+  created_at?: string;
 }
