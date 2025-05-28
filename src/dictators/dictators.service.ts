@@ -19,12 +19,17 @@ export class DictatorsService {
     private readonly contestantRepository: Repository<Contestant>,
     private readonly jwtService: JwtService
   ) {}
-  
+
   async create(createDictatorDto: CreateDictatorDto) {
+    const hashedPassword = createDictatorDto.password
+      ? bcrypt.hashSync(createDictatorDto.password, 10)
+      : null;
+
     const newDictator = this.dictatorRepository.create({
-      ...createDictatorDto, 
-      password: bcrypt.hashSync(createDictatorDto.password, 10) 
+      ...createDictatorDto,
+      password: hashedPassword,
     });
+
     await this.dictatorRepository.save(newDictator);
     return newDictator;
   }
@@ -36,21 +41,23 @@ export class DictatorsService {
   async login(loginDTO: LoginDTO) {
     const { name, password } = loginDTO;
     const dictator = await this.dictatorRepository.findOneBy({ name });
-    
+
     if (!dictator) {
-      throw new NotFoundException('Usted no es un dictator, no puede ingresar a la plataforma');
+      throw new NotFoundException(
+        'Usted no es un dictator, no puede ingresar a la plataforma'
+      );
     }
-    
+
     const valid = bcrypt.compareSync(password, dictator.password);
     if (!valid) {
       throw new NotFoundException('Credenciales invalidas');
     }
-    
+
     const jwtPayload: JwtPayload = { name };
-    const token = this.getJwtToken(jwtPayload); 
+    const token = this.getJwtToken(jwtPayload);
     return { dictator, token };
   }
-  
+
   findAll() {
     return this.dictatorRepository.find({ relations: ['contestants'] });
   }
@@ -61,12 +68,17 @@ export class DictatorsService {
       relations: ['contestants'],
     });
   }
-     
+
   async update(id: string, updateDictatorDto: UpdateDictatorDto) {
+    const hashedPassword = updateDictatorDto.password
+      ? bcrypt.hashSync(updateDictatorDto.password, 10)
+      : undefined;
+
     await this.dictatorRepository.update(id, {
-      ...updateDictatorDto, 
-      password: bcrypt.hashSync(updateDictatorDto.password, 10) 
+      ...updateDictatorDto,
+      ...(hashedPassword !== undefined && { password: hashedPassword }),
     });
+
     await this.updateNumberOfContestants(id);
     return this.findOne(id);
   }
@@ -80,12 +92,12 @@ export class DictatorsService {
       where: { id },
       relations: ['contestants'],
     });
-  
+
     if (!dictator) {
       console.log(`Dictator ${id} no encontrado`);
       return;
     }
-    
+
     dictator.number_of_slaves = dictator.contestants.length;
     await this.dictatorRepository.save(dictator);
   }
@@ -94,7 +106,7 @@ export class DictatorsService {
     const contestants = await this.contestantRepository.find({
       where: { dictator: { id: dictatorId } },
     });
-  
+
     return contestants;
   }
 }
