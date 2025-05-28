@@ -21,13 +21,13 @@ export class Dictator {
 
     @Column('int', {
         nullable: false,
-        default: 0
+        default: 1  
     })
-    number_of_slaves?: number;
+    number_of_slaves: number; 
     
     @Column('int', {
         nullable: false,
-        default: 100,
+        default: 1, 
     })
     loyalty_to_carolina: number;
 
