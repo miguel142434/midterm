@@ -20,8 +20,10 @@ export class CreateDictatorDto {
   loyalty_to_carolina?: number;
 
   @IsEmail()
-  email: string;
+  @IsOptional()
+  email?: string; 
 
   @IsString()
-  password: string;
+  @IsOptional()
+  password?: string; 
 }
