@@ -34,10 +34,10 @@ export class Dictator {
     @OneToMany(() => Contestant, (contestant) => contestant.dictator)
     contestants: Contestant[];
 
-    @OneToMany(() => Transaction, (transaction) => transaction.buyer_id)
+    @OneToMany(() => Transaction, (transaction) => transaction.buyer)
     transactionsAsBuyer: Transaction[];
 
-    @OneToMany(() => Transaction, (transaction) => transaction.seller_id)
+    @OneToMany(() => Transaction, (transaction) => transaction.seller)
     transactionsAsSeller: Transaction[];
 
     @Column('varchar', {

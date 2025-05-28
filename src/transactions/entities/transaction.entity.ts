@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Dictator } from 'src/dictators/entities/dictator.entity';
 
 export enum TransactionStatus {
     COMPLETED = 'Completed',
@@ -16,6 +17,14 @@ export class Transaction {
 
     @Column('uuid')
     seller_id: string;
+
+    @ManyToOne(() => Dictator, dictator => dictator.transactionsAsBuyer)
+    @JoinColumn({ name: 'buyer_id' })
+    buyer: Dictator;
+
+    @ManyToOne(() => Dictator, dictator => dictator.transactionsAsSeller)
+    @JoinColumn({ name: 'seller_id' })
+    seller: Dictator;
 
     @Column('varchar', {
         nullable: false
