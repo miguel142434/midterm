@@ -15,11 +15,15 @@ export class BattlesService {
     ) {}
 
     async create(createBattleDto: CreateBattleDto): Promise<Battle> {
-        
         await this.contestantsService.findOne(createBattleDto.contestant_1_id);
         await this.contestantsService.findOne(createBattleDto.contestant_2_id);
 
         const battle = this.battleRepository.create(createBattleDto);
+
+        if (createBattleDto.date) {
+            battle.date = createBattleDto.date;
+        }
+
         return this.battleRepository.save(battle);
     }
 

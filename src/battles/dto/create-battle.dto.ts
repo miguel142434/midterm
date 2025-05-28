@@ -1,4 +1,5 @@
-import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsUUID, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateBattleDto {
     @IsUUID()
@@ -18,4 +19,9 @@ export class CreateBattleDto {
     @IsString()
     @IsOptional()
     readonly injuries?: string;
+
+    @IsOptional()
+    @Type(() => Date)
+    @IsDate()
+    readonly date?: Date; 
 }
