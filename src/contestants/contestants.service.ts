@@ -3,57 +3,99 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contestant } from './entities/contestant.entity';
 import { CreateContestantDto } from './dto/create-contestant.dto';
+import { Dictator } from 'src/dictators/entities/dictator.entity';
 
 @Injectable()
 export class ContestantsService {
-    constructor(
-        @InjectRepository(Contestant)
-        private contestantRepository: Repository<Contestant>,
-    ) {}
+  constructor(
+    @InjectRepository(Contestant)
+    private contestantRepository: Repository<Contestant>,
 
-    async create(createContestantDto: CreateContestantDto): Promise<Contestant> {
-        const contestant = this.contestantRepository.create(createContestantDto);
-        return this.contestantRepository.save(contestant);
+    @InjectRepository(Dictator)
+    private dictatorRepository: Repository<Dictator>,
+  ) {}
+
+  async create(createContestantDto: CreateContestantDto): Promise<Contestant> {
+    const { dictatorId, ...rest } = createContestantDto;
+
+    const dictator = await this.dictatorRepository.findOne({
+      where: { id: dictatorId },
+    });
+
+    if (!dictator) {
+      throw new NotFoundException(`Dictator with ID "${dictatorId}" not found`);
     }
 
-    async findAll(): Promise<Contestant[]> {
-        return this.contestantRepository.find({
-            order: {
-                created_at: 'DESC',
-            },
-        });
+    const contestant = this.contestantRepository.create({
+      ...rest,
+      dictator,
+    });
+
+    return this.contestantRepository.save(contestant);
+  }
+
+  async findAll(): Promise<Contestant[]> {
+    return this.contestantRepository.find({
+      relations: ['dictator'], // para incluir info del dictador
+      order: {
+        created_at: 'DESC',
+      },
+    });
+  }
+
+  async findOne(id: string): Promise<Contestant> {
+    const contestant = await this.contestantRepository.findOne({
+      where: { id },
+      relations: ['dictator'],
+    });
+
+    if (!contestant) {
+      throw new NotFoundException(`Contestant with ID "${id}" not found`);
     }
 
-    async findOne(id: string): Promise<Contestant> {
-        const contestant = await this.contestantRepository.findOne({ where: { id } });
-        if (!contestant) {
-            throw new NotFoundException(`Contestant with ID "${id}" not found`);
-        }
-        return contestant;
+    return contestant;
+  }
+
+  async update(id: string, updateContestantDto: Partial<CreateContestantDto>): Promise<Contestant> {
+    const contestant = await this.findOne(id);
+
+    // Si quieren cambiar de dictador
+    if (updateContestantDto.dictatorId) {
+      const newDictator = await this.dictatorRepository.findOne({
+        where: { id: updateContestantDto.dictatorId },
+      });
+
+      if (!newDictator) {
+        throw new NotFoundException(`Dictator with ID "${updateContestantDto.dictatorId}" not found`);
+      }
+
+      contestant.dictator = newDictator;
     }
 
-    async update(id: string, updateContestantDto: Partial<CreateContestantDto>): Promise<Contestant> {
-        const contestant = await this.findOne(id);
-        this.contestantRepository.merge(contestant, updateContestantDto);
-        return this.contestantRepository.save(contestant);
-    }
+    this.contestantRepository.merge(contestant, {
+      ...updateContestantDto,
+      dictator: contestant.dictator,
+    });
 
-    async remove(id: string): Promise<void> {
-        const result = await this.contestantRepository.delete(id);
-        if (result.affected === 0) {
-            throw new NotFoundException(`Contestant with ID "${id}" not found`);
-        }
-    }
+    return this.contestantRepository.save(contestant);
+  }
 
-    async incrementWins(id: string): Promise<Contestant> {
-        const contestant = await this.findOne(id);
-        contestant.wins += 1;
-        return this.contestantRepository.save(contestant);
+  async remove(id: string): Promise<void> {
+    const result = await this.contestantRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Contestant with ID "${id}" not found`);
     }
+  }
 
-    async incrementLosses(id: string): Promise<Contestant> {
-        const contestant = await this.findOne(id);
-        contestant.losses += 1;
-        return this.contestantRepository.save(contestant);
-    }
+  async incrementWins(id: string): Promise<Contestant> {
+    const contestant = await this.findOne(id);
+    contestant.wins += 1;
+    return this.contestantRepository.save(contestant);
+  }
+
+  async incrementLosses(id: string): Promise<Contestant> {
+    const contestant = await this.findOne(id);
+    contestant.losses += 1;
+    return this.contestantRepository.save(contestant);
+  }
 }
